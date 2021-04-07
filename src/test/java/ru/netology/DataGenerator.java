@@ -5,6 +5,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import lombok.val;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Locale;
@@ -28,7 +29,7 @@ public class DataGenerator {
                 .build();
 
         @BeforeAll
-        static void setUpAll(RegistrationData registrationData) {
+        static void makeRequest(RegistrationData registrationData) {
             given() // "дано"java -jar app-ibank.jar -P:profile=test
                     .spec(requestSpec) // указываем, какую спецификацию используем
                     .body(registrationData) // передаём в теле объект, который будет преобразован в JSON
@@ -44,27 +45,30 @@ public class DataGenerator {
                     faker.name().firstName(),
                     faker.internet().password(),
                     Status.active);
-            setUpAll(registrationData);
+            makeRequest(registrationData);
             return registrationData;
         }
 
-        public static RegistrationData generateValidButBlockedUser() {
-            Faker faker = new Faker(new Locale("en"));
-            RegistrationData registrationData = new RegistrationData(
-                    faker.name().firstName(),
-                    faker.internet().password(),
-                    Status.blocked);
-            setUpAll(registrationData);
-            return registrationData;
-        }
-
-        public static RegistrationData generateUserWithoutRegistration() {
-            Faker faker = new Faker(new Locale("en"));
-            RegistrationData registrationData = new RegistrationData(
+        public static RegistrationData generateNotValidActiveUser() {
+            Faker faker = new Faker(new Locale("ru"));
+            val registrationData = new RegistrationData(
                     faker.name().firstName(),
                     faker.internet().password(),
                     Status.active);
+            //makeRequest(registrationData);
             return registrationData;
         }
+        public static RegistrationData generateUserBlockedOrWithoutRegistration(Status stat) {
+            Faker faker = new Faker(new Locale("en"));
+            RegistrationData registrationData = new RegistrationData(
+                    faker.name().firstName(),
+                    faker.internet().password(),
+                    stat);
+            if (stat == Status.blocked){
+                makeRequest(registrationData);
+            }
+            return registrationData;
+        }
+
     }
 }

@@ -22,11 +22,11 @@ public class AuthTest {
     @Test
     void shouldNotRequestWithValidLoginInfoButStatusBlocked() {
         open("http://localhost:9999");
-        val person = DataGenerator.Registration.generateValidButBlockedUser();
+        val person = DataGenerator.Registration.generateUserBlockedOrWithoutRegistration(Status.blocked);
         $("input[name =\"login\"]").setValue(person.getLogin());
         $("input[name=\"password\"]").setValue(person.getPassword());
         $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
+        $(withText("Пользователь заблокирован")).waitUntil(Condition.visible, 5000);
     }
 
     @Test
@@ -53,31 +53,42 @@ public class AuthTest {
     void shouldNotRequestWithValidPasswordButNotValidLogin() {
         open("http://localhost:9999");
         val person = DataGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue("Irina");
+        val personNotValid = DataGenerator.Registration.generateNotValidActiveUser();
+        $("input[name =\"login\"]").setValue(personNotValid.getLogin());
         $("input[name=\"password\"]").setValue(person.getPassword());
         $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 10000);
+        $(withText("Неверно указан логин или пароль")).waitUntil(Condition.visible, 10000);
     }
 
     @Test
     void shouldNotRequestWithValidLoginButNotValidPassword() {
         open("http://localhost:9999");
         val person = DataGenerator.Registration.generateValidActiveUser();
+        val personNotValid = DataGenerator.Registration.generateNotValidActiveUser();
         $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue("XXX");
+        $("input[name=\"password\"]").setValue(personNotValid.getPassword());
         $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
+        $(withText("Неверно указан логин или пароль")).waitUntil(Condition.visible, 5000);
     }
 
     @Test
     void shouldNotRequestWithValidLoginButWithoutRegistration() {
         open("http://localhost:9999");
-        val person = DataGenerator.Registration.generateUserWithoutRegistration();
+        val person = DataGenerator.Registration.generateUserBlockedOrWithoutRegistration(Status.active);
         $("input[name =\"login\"]").setValue(person.getLogin());
         $("input[name=\"password\"]").setValue(person.getPassword());
         $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
+        $(withText("Неверно указан логин или пароль")).waitUntil(Condition.visible, 5000);
     }
 
-
+    @Test
+    void shouldNotRequestWithNotValidPasswordAndNotValidLogin() {
+        open("http://localhost:9999");
+        //val person = DataGenerator.Registration.generateValidActiveUser();
+        val personNotValue = DataGenerator.Registration.generateNotValidActiveUser();
+        $("input[name =\"login\"]").setValue(personNotValue.getLogin());
+        $("input[name=\"password\"]").setValue(personNotValue.getPassword());
+        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
+        $(withText("Неверно указан логин или пароль")).waitUntil(Condition.visible, 10000);
+    }
 }
